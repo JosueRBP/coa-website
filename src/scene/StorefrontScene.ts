@@ -41,12 +41,12 @@ export class StorefrontScene {
     this.applyResize()
   }
   private addLighting(): THREE.DirectionalLight {
-    this.scene.add(new THREE.HemisphereLight(0xe9f0ec, 0x665f56, 1.35))
-    const windowFill = new THREE.RectAreaLight(0xfff8e8, 18, 4.7, 5.7)
+    this.scene.add(new THREE.HemisphereLight(0xe9f0ec, 0x5b554e, 1.15))
+    const windowFill = new THREE.RectAreaLight(0xfff9ec, 20, 4.6, 5.6)
     windowFill.position.set(0, 1.25, -3.95)
     windowFill.lookAt(0, -0.7, 2.5)
     this.scene.add(windowFill)
-    const daylight = new THREE.DirectionalLight(0xfff6df, 3.75)
+    const daylight = new THREE.DirectionalLight(0xfff8e9, 3.35)
     daylight.position.set(-0.8, 5.8, -3.35)
     daylight.target.position.set(0.4, -2.2, 2.6)
     daylight.castShadow = true
@@ -57,9 +57,11 @@ export class StorefrontScene {
     daylight.shadow.camera.near = 0.5; daylight.shadow.camera.far = 20
     daylight.shadow.camera.left = -8; daylight.shadow.camera.right = 8; daylight.shadow.camera.top = 7; daylight.shadow.camera.bottom = -5
     this.scene.add(daylight, daylight.target)
-    const roomFill = new THREE.PointLight(0xfff3dc, 3.4, 16, 2)
+    const roomFill = new THREE.PointLight(0xe7eee7, 2.5, 16, 2)
     roomFill.position.set(-4.8, 3.8, 3.2)
     this.scene.add(roomFill)
+    const benchBounce = new THREE.RectAreaLight(0xd8b895, 3.2, 7.5, 1.5)
+    benchBounce.position.set(0, -1.45, -1.7); benchBounce.lookAt(0, .2, -3.8); this.scene.add(benchBounce)
     return daylight
   }
   private scheduleResize = (): void => {

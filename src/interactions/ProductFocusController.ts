@@ -74,7 +74,7 @@ export class ProductFocusController {
     if (!basePose) return
     const mobile = this.element.clientWidth < 680
     const pose: FocusPose = mobile
-      ? { camera: [0, 0.25, 9.3], target: [0, 1.2, 2.1], product: [0, 1.2, 2.1], scale: 1.34 }
+      ? { camera: [0, 0.42, 9.3], target: [0, 2.62, 2.1], product: [0, 2.62, 2.1], scale: 1.34 }
       : basePose
     const duration = !animate || this.reducedMotion ? 0 : 0.9
     this.rotationX = -0.08; this.rotationY = 0

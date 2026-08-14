@@ -28,16 +28,16 @@ function latheHandle(x: number, y: number, z: number): THREE.Group {
 
 export function createProductionWorkbench(): { root: THREE.Group; top: THREE.Mesh } {
   const root = new THREE.Group(); root.name = 'PN_Main_Workbench_ProceduralProduction'
-  const top = box([5.8, 0.32, 1.82], materials.woodWorkbench); top.position.y = 0.72; root.add(top)
-  const apron = box([5.45, 0.28, 0.18], materials.woodAgedDetail); apron.position.set(0, 0.43, 0.75); root.add(apron)
-  ;[-2.34, 2.34].forEach((x, cabinetIndex) => {
-    const cabinet = box([1.08, 1.5, 1.46], cabinetIndex ? materials.woodAgedDetail : materials.woodCabinet); cabinet.position.set(x, -0.08, 0); root.add(cabinet)
+  const top = box([8.45, 0.32, 1.9], materials.woodWorkbench); top.position.y = 0.72; root.add(top)
+  const apron = box([8.1, 0.28, 0.18], materials.woodAgedDetail); apron.position.set(0, 0.43, 0.78); root.add(apron)
+  ;[-3.45, -2.15, 2.15, 3.45].forEach((x, cabinetIndex) => {
+    const cabinet = box([1.08, 1.5, 1.5], cabinetIndex % 2 ? materials.woodAgedDetail : materials.woodCabinet); cabinet.position.set(x, -0.08, 0); root.add(cabinet)
     ;[0.36, -0.02, -0.4].forEach((y, drawerIndex) => {
       const face = box([0.88, 0.29, 0.09], drawerIndex === 1 ? materials.woodWorkbench : materials.woodCabinet); face.position.set(x, y, 0.78); root.add(face, latheHandle(x, y, 0.87))
     })
   })
-  ;[-2.72, -1.92, 1.92, 2.72].forEach((x) => { const leg = box([0.22, 1.72, 0.3], materials.woodAgedDetail); leg.position.set(x, -0.18, -0.42); root.add(leg) })
-  const stretcher = box([3.65, 0.18, 0.24], materials.woodAgedDetail); stretcher.position.set(0, -0.68, -0.48); root.add(stretcher)
+  ;[-4.02, -1.48, 1.48, 4.02].forEach((x) => { const leg = box([0.22, 1.72, 0.3], materials.woodAgedDetail); leg.position.set(x, -0.18, -0.42); root.add(leg) })
+  const stretcher = box([8.05, 0.18, 0.24], materials.woodAgedDetail); stretcher.position.set(0, -0.68, -0.48); root.add(stretcher)
   const centralMat = box([2.45, 0.025, 0.9], materials.displaySurface, false); centralMat.position.set(0, 0.9, 0); root.add(centralMat)
   const ruler = box([1.35, .018, .075], materials.hardwareMetal, false); ruler.position.set(-1.72, .905, .42); ruler.rotation.y = -.12; root.add(ruler)
   const fileGeometry = new THREE.BoxGeometry(.045, .035, .72)
@@ -52,20 +52,36 @@ export function createProductionWorkbench(): { root: THREE.Group; top: THREE.Mes
   for (let index = 0; index < 12; index += 1) { hardwareMatrix.makeTranslation(.58 + (index % 4) * .09, .93, -.3 + Math.floor(index / 4) * .08); hardware.setMatrixAt(index, hardwareMatrix) }
   hardware.castShadow = true; hardware.raycast = () => undefined; root.add(hardware)
   const wornEdge = box([3.2,.012,.035], materials.woodAgedDetail, false); wornEdge.position.set(0,.89,.91); root.add(wornEdge)
-  root.add(contact([5.9, 1.65], 0, -0.285, 0))
+  root.add(contact([8.55, 1.72], 0, -0.285, 0))
   return { root, top }
+}
+
+function createArchedWall(): THREE.Mesh {
+  const wall = new THREE.Shape()
+  wall.moveTo(-9, -3.15); wall.lineTo(9, -3.15); wall.lineTo(9, 6.95); wall.lineTo(-9, 6.95); wall.closePath()
+  const opening = new THREE.Path()
+  opening.moveTo(-2.25, -0.95)
+  opening.lineTo(-2.25, 2.7)
+  opening.absarc(0, 2.7, 2.25, Math.PI, 0, true)
+  opening.lineTo(2.25, -0.95)
+  opening.closePath()
+  wall.holes.push(opening)
+  const geometry = new THREE.ExtrudeGeometry(wall, { depth: .42, bevelEnabled: false, curveSegments: 32 })
+  geometry.translate(0, 0, -.21)
+  const mesh = new THREE.Mesh(geometry, materials.plaster)
+  mesh.name = 'PN_Continuous_Arched_Back_Wall'; mesh.position.z = -4.5; mesh.castShadow = true; mesh.receiveShadow = true
+  return mesh
 }
 
 export function createProductionArchitecture(): { shell: THREE.Group; floor: THREE.Group; window: THREE.Group; grille: THREE.Group; exterior: THREE.Group; backWall: THREE.Mesh; floorBase: THREE.Mesh } {
   const shell = new THREE.Group(); shell.name = 'PN_Workshop_Architecture_ProceduralProduction'
-  const leftWall = box([6.55, 10.5, 0.42], materials.plaster); leftWall.position.set(-5.72, 1.7, -4.5)
-  const rightWall = leftWall.clone(); rightWall.position.x = 5.72
-  const upperWall = box([4.9, 2.4, 0.42], materials.plasterVariation); upperWall.position.set(0, 5.75, -4.5)
-  const lowerWall = box([4.9, 0.75, 0.42], materials.plaster); lowerWall.position.set(0, -2.88, -4.5)
+  const backWall = createArchedWall()
   const leftReturn = box([0.38, 10.5, 5.2], materials.plasterVariation); leftReturn.position.set(-9, 1.7, -2.1)
   const rightReturn = leftReturn.clone(); rightReturn.position.x = 9
   const baseboard = box([17.7, 0.22, 0.15], materials.plasterTrim); baseboard.position.set(0, -3.08, -4.18)
-  shell.add(leftWall, rightWall, upperWall, lowerWall, leftReturn, rightReturn, baseboard)
+  const ceiling = box([18.4, .34, 9.1], materials.plasterVariation); ceiling.name = 'PN_Real_Ceiling_Enclosure'; ceiling.position.set(0, 6.72, -.15)
+  const ceilingBeam = box([18.1, .22, .28], materials.mediumWood); ceilingBeam.position.set(0, 6.46, 3.95)
+  shell.add(backWall, leftReturn, rightReturn, baseboard, ceiling, ceilingBeam)
 
   const floor = new THREE.Group(); floor.name = 'PN_Tiled_Floor_ProceduralProduction'
   const floorBase = new THREE.Mesh(new THREE.PlaneGeometry(24, 18), materials.grout); floorBase.rotation.x = -Math.PI / 2; floorBase.position.y = -3.25; floorBase.receiveShadow = true; floor.add(floorBase)
@@ -88,22 +104,26 @@ export function createProductionArchitecture(): { shell: THREE.Group; floor: THR
   const arch = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(archPoints), 40, 0.14, 7, false), recess); arch.castShadow = true; window.add(arch)
   const grille = createProductionGrille().root; window.add(grille)
   const glass = new THREE.Mesh(new THREE.ShapeGeometry(openingShape, 32), materials.glass); glass.position.z = 0.18; window.add(glass)
-  return { shell, floor, window, grille, exterior, backWall: leftWall, floorBase }
+  return { shell, floor, window, grille, exterior, backWall, floorBase }
 }
 
 export function createProductionTools(): THREE.Group {
   const tools = new THREE.Group(); tools.name = 'PN_Machinery_ProceduralProduction'
-  const drillBase = box([1.2, 0.2, 0.9], materials.agedMetal); drillBase.position.set(-4.6, -2.68, -1.75)
-  const column = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 1.8, 10), materials.machineMetal); column.position.set(-4.6, -1.7, -1.95); column.castShadow = true
-  const head = box([0.95, 0.52, 0.68], materials.machinePaint); head.position.set(-4.38, -0.93, -1.83)
-  const pulley = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.12, 12), materials.agedMetal); pulley.rotation.z = Math.PI / 2; pulley.position.set(-4.82, -0.9, -1.82)
-  const table = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.11, 16), materials.machineMetal); table.position.set(-4.35, -1.72, -1.7)
-  const bit = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.012, 0.64, 7), materials.machineMetal); bit.position.set(-4.15, -1.46, -1.62)
-  tools.add(drillBase, column, head, pulley, table, bit)
+  const leftBench = box([2.25, 1.35, 1.55], materials.woodCabinet); leftBench.position.set(-5.15, -2.48, -2.75)
+  const leftTop = box([2.5, .2, 1.75], materials.woodWorkbench); leftTop.position.set(-5.15, -1.72, -2.72)
+  const drillBase = box([1.2, 0.2, 0.9], materials.agedMetal); drillBase.position.set(-5.15, -1.5, -2.7)
+  const column = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 1.8, 10), materials.machineMetal); column.position.set(-5.15, -.52, -2.9); column.castShadow = true
+  const head = box([0.95, 0.52, 0.68], materials.machinePaint); head.position.set(-4.93, .25, -2.78)
+  const pulley = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.12, 12), materials.agedMetal); pulley.rotation.z = Math.PI / 2; pulley.position.set(-5.37, .28, -2.77)
+  const table = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.11, 16), materials.machineMetal); table.position.set(-4.9, -.54, -2.65)
+  const bit = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.012, 0.64, 7), materials.machineMetal); bit.position.set(-4.7, -.28, -2.57)
+  tools.add(leftBench, leftTop, drillBase, column, head, pulley, table, bit)
 
-  const grinderBase = box([1.5, 0.22, 0.82], materials.agedMetal); grinderBase.position.set(4.45, -2.7, -1.7)
-  const motor = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 1.2, 16), materials.machinePaint); motor.rotation.z = Math.PI / 2; motor.position.set(4.45, -2.25, -1.65); motor.castShadow = true; tools.add(grinderBase, motor)
-  ;[-0.7, 0.7].forEach((offset) => { const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.12, 18), materials.agedMetal); wheel.rotation.z = Math.PI / 2; wheel.position.set(4.45 + offset, -2.25, -1.65); wheel.castShadow = true; tools.add(wheel) })
+  const rightBench = box([2.55, 1.35, 1.55], materials.woodAgedDetail); rightBench.position.set(5.1, -2.48, -2.75)
+  const rightTop = box([2.8, .2, 1.75], materials.woodWorkbench); rightTop.position.set(5.1, -1.72, -2.72)
+  const grinderBase = box([1.5, 0.22, 0.82], materials.agedMetal); grinderBase.position.set(5.1, -1.48, -2.66)
+  const motor = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 1.2, 16), materials.machinePaint); motor.rotation.z = Math.PI / 2; motor.position.set(5.1, -1.03, -2.61); motor.castShadow = true; tools.add(rightBench, rightTop, grinderBase, motor)
+  ;[-0.7, 0.7].forEach((offset) => { const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.12, 18), materials.agedMetal); wheel.rotation.z = Math.PI / 2; wheel.position.set(5.1 + offset, -1.03, -2.61); wheel.castShadow = true; tools.add(wheel) })
 
   const board = box([2.2, 2.35, 0.13], materials.woodAgedDetail); board.position.set(-4.65, 1.8, -3.93); tools.add(board)
   const handleMaterial = materials.mediumWoodLight
@@ -112,7 +132,7 @@ export function createProductionTools(): THREE.Group {
     const handle = box([0.12, 0.34, 0.08], handleMaterial); handle.position.set(x, 1.35, -3.79); tools.add(steel, handle)
   })
   ;[-1.9, -1.45, 1.55].forEach((x) => { const clamp = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.04, 6, 14, Math.PI * 1.45), materials.agedMetal); clamp.position.set(x, -2.03, -0.7); clamp.rotation.x = Math.PI / 2; tools.add(clamp) })
-  tools.add(contact([1.45, 1.05], -4.55, -3.19, -1.78), contact([1.75, 1], 4.45, -3.19, -1.72))
+  tools.add(contact([2.5, 1.65], -5.15, -3.19, -2.75), contact([2.8, 1.65], 5.1, -3.19, -2.75))
   return tools
 }
 
@@ -120,10 +140,13 @@ export function createProductionForeground(): THREE.Group {
   const root = new THREE.Group(); root.name = 'PN_Foreground_Props_ProceduralProduction'
   const left = box([4.2, 0.36, 2.9], materials.woodAgedDetail); left.position.set(-7.35, -2.52, 4.15); left.rotation.y = 0.14
   const right = box([3.7, 0.34, 2.6], materials.woodCabinet); right.position.set(7.45, -2.48, 4.45); right.rotation.y = -0.16; root.add(left, right)
+  ;([[-8.7,3.35],[-6.05,4.95],[6.25,3.8],[8.55,5.1]] as const).forEach(([x,z]) => { const leg = box([.22,1.45,.22], materials.woodAgedDetail); leg.position.set(x,-2.98,z); root.add(leg) })
   const mat = box([1.65, 0.035, 1.1], materials.machinePaint, false); mat.position.set(-6.65, -2.3, 3.8); root.add(mat)
   const tray = box([1.75, 0.1, 0.92], materials.machineMetal); tray.position.set(6.95, -2.22, 4.12); root.add(tray)
   ;[-0.52, 0, 0.52].forEach((offset, index) => { const tool = box([0.07, 0.055, 1.02], index === 1 ? materials.agedMetal : materials.machineMetal); tool.position.set(6.95 + offset, -2.12, 4.1); tool.rotation.y = (index - 1) * 0.16; root.add(tool) })
   ;[-6.9, -6.45].forEach((x) => { const blank = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.035, 6, 18), materials.displaySurface); blank.scale.y = 0.65; blank.position.set(x, -2.24, 3.65); blank.rotation.x = Math.PI / 2; root.add(blank) })
+  const viceBase = box([.7,.12,.48], materials.machineryPaint); viceBase.position.set(-7.7,-2.27,4.55); root.add(viceBase)
+  ;[-.14,.14].forEach((offset) => { const jaw = box([.1,.34,.48], materials.agedSteel); jaw.position.set(-7.7 + offset,-2.06,4.55); root.add(jaw) })
   return root
 }
 
@@ -152,5 +175,8 @@ export function createProductionExterior(): THREE.Group {
   const middleRoof = box([2.5,.12,.2], materials.exteriorTrim, false); middleRoof.position.set(-2.15,1.13,-.99); root.add(middleRoof)
   const distant = box([5.2,3.5,.08], materials.facadeCream, false); distant.position.set(-.2,.15,-1.45); distant.scale.set(1.15,1,1); root.add(distant)
   ;[-2.25,-.85,.75,2.05].forEach((x,index) => { const silhouette = box([.72 + (index % 2) * .2,1.1 + (index % 3) * .35,.05], index % 2 ? materials.facadeAqua : materials.facadeCream, false); silhouette.position.set(x,1.55 + (index % 3) * .1,-1.25 - index * .08); root.add(silhouette) })
+  const street = box([7,.12,2.4], materials.exteriorStreet, false); street.position.set(0,-2.32,-.8); street.rotation.x = -.035; root.add(street)
+  const curb = box([7,.18,.28], materials.exteriorTrim, false); curb.position.set(0,-2.12,-.05); root.add(curb)
+  ;[-2.7,2.55].forEach((x) => { const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.055,.08,1.1,8), materials.mediumWood); trunk.position.set(x,-1.42,-.18); const crown = new THREE.Mesh(new THREE.SphereGeometry(.52,10,8), materials.exteriorFoliage); crown.scale.set(1,.72,.55); crown.position.set(x,-.68,-.18); root.add(trunk,crown) })
   return root
 }

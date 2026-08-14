@@ -86,4 +86,6 @@ export const workshopMaterials = {
   facadeCream: standard('facadeCream', 0xdacdb5, 0.92, 0, 'plaster', 23),
   exteriorTrim: standard('exteriorTrim', 0xeee8da, 0.84, 0, 'plaster', 24),
   exteriorShadow: standard('exteriorOpening', 0x3e5b5d, 0.82),
+  exteriorStreet: standard('exteriorStreet', 0x7f817b, 0.96, 0, 'ceramic', 28),
+  exteriorFoliage: standard('exteriorFoliage', 0x536d55, 0.88, 0, 'plaster', 29),
 }

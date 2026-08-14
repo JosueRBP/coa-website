@@ -39,8 +39,8 @@ function box(size: readonly [number, number, number], material: THREE.Material):
 
 function createDisplayBay(name: string, left: number, right: number): THREE.Group {
   const bay = new THREE.Group(); bay.name = name
-  ;[left, right].forEach((x) => { const upright = box([0.18, 6.35, 0.92], materials.woodAgedDetail); upright.position.set(x, 0, -3.32); bay.add(upright) })
-  const back = box([Math.abs(right - left), 6.15, 0.08], materials.plasterVariation); back.position.set((left + right) / 2, 0, -3.78); bay.add(back)
+  const back = box([Math.abs(right - left) + .3, 6.15, 0.08], materials.plasterVariation); back.position.set((left + right) / 2, 0, -3.78); bay.add(back)
+  const crown = box([Math.abs(right - left) + .3, .09, .28], materials.mediumWood); crown.position.set((left + right) / 2, 3.04, -3.62); bay.add(crown)
   return bay
 }
 
@@ -63,7 +63,7 @@ export function createWorkshop(): WorkshopContent {
   const productDisplays = new THREE.Group(); productDisplays.name = 'product-displays'
   const machinery = createProductionTools()
   const foreground = createProductionForeground()
-  const bench = createProductionWorkbench(); bench.root.position.set(0, -2.95, -1.65)
+  const bench = createProductionWorkbench(); bench.root.position.set(0, -2.95, -2.75)
   const leftDisplays = createDisplayBay('PN_Left_Displays_ProceduralProduction', -5.78, -3.02)
   const rightDisplays = createDisplayBay('PN_Right_Displays_ProceduralProduction', 3.02, 5.78)
   furniture.add(bench.root, leftDisplays, rightDisplays)

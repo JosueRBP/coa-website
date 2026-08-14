@@ -13,7 +13,7 @@ const localAnchorCoordinates: Record<GrilleAnchorName, readonly [number, number]
 
 export const grilleRouteAnchors = Object.fromEntries(Object.entries(localAnchorCoordinates).map(([name, [x, y]]) => [name, new THREE.Vector3(x + windowOrigin.x, y + windowOrigin.y, grilleDepth + windowOrigin.z)])) as Record<GrilleAnchorName, THREE.Vector3>
 
-function tube(points: THREE.Vector3[], radius = 0.025): THREE.Mesh {
+function tube(points: THREE.Vector3[], radius = 0.021): THREE.Mesh {
   const curve = new THREE.CatmullRomCurve3(points)
   const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(8, points.length * 5), radius, 6, false), materials.paintedIron)
   mesh.castShadow = true
@@ -42,15 +42,15 @@ export function createProductionGrille(): { root: THREE.Group; anchors: THREE.Gr
   const anchors = new THREE.Group()
   anchors.name = 'PN_Grille_Route_Anchors'
 
-  const verticalGeometry = new THREE.CylinderGeometry(0.026, 0.026, 3.65, 7)
-  ;[-2.12, -1.55, 0, 1.55, 2.12].forEach((x) => {
+  const verticalGeometry = new THREE.CylinderGeometry(0.022, 0.022, 3.65, 8)
+  ;[-2.12, -1.06, 0, 1.06, 2.12].forEach((x) => {
     const bar = new THREE.Mesh(verticalGeometry, materials.paintedIron)
     bar.position.set(x, -0.46, grilleDepth)
     bar.castShadow = true
     root.add(bar)
   })
   ;[-1.72, -0.22, 1.08].forEach((y) => {
-    root.add(tube([new THREE.Vector3(-2.12, y, grilleDepth), new THREE.Vector3(2.12, y, grilleDepth)], 0.027))
+    root.add(tube([new THREE.Vector3(-2.12, y, grilleDepth), new THREE.Vector3(2.12, y, grilleDepth)], 0.022))
   })
 
   ;[-1.17, -0.39, 0.39, 1.17].forEach((x, index) => {
@@ -61,7 +61,7 @@ export function createProductionGrille(): { root: THREE.Group; anchors: THREE.Gr
     const angle = Math.PI - (Math.PI * index) / 18
     return new THREE.Vector3(Math.cos(angle) * 2.12, 1.08 + Math.sin(angle) * 2.12, grilleDepth)
   })
-  root.add(tube(archPoints, 0.03))
+  root.add(tube(archPoints, 0.026))
   ;[-0.86, -0.43, 0, 0.43, 0.86].forEach((angle) => {
     root.add(tube([
       new THREE.Vector3(0, 1.08, grilleDepth),
@@ -80,4 +80,3 @@ export function createProductionGrille(): { root: THREE.Group; anchors: THREE.Gr
   root.add(anchors)
   return { root, anchors }
 }
-
