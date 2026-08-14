@@ -5,6 +5,7 @@ import type { StorefrontUI } from '../ui/StorefrontUI'
 import type { ParallaxController } from './ParallaxController'
 import type { ProductInteraction } from './ProductInteraction'
 import type { MobileWorkshopPan } from './MobileWorkshopPan'
+import type { CommerceAction } from '../commerce/types'
 
 type FocusState = 'explore' | 'entering-focus' | 'focus' | 'switching-product' | 'exiting-focus'
 
@@ -27,6 +28,7 @@ export class ProductFocusController {
   private dragging = false
   private rotationX = -0.08
   private rotationY = 0
+  private commercePending = false
   private readonly reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   private readonly target = new THREE.Vector3()
   private readonly camera: THREE.PerspectiveCamera
@@ -85,7 +87,7 @@ export class ProductFocusController {
   }
 
   private navigate(direction: number): void {
-    if (this.state !== 'focus' || !this.selectedProduct) return
+    if (this.state !== 'focus' || !this.selectedProduct || this.commercePending) return
     const currentIndex = products.findIndex((product) => product.id === this.selectedProduct?.id)
     const nextIndex = (currentIndex + direction + products.length) % products.length
     const product = products[nextIndex]
@@ -100,7 +102,7 @@ export class ProductFocusController {
   }
 
   private close = (): void => {
-    if (this.state !== 'focus') return
+    if (this.state === 'explore' || this.state === 'exiting-focus' || this.commercePending || !this.selected) return
     this.state = 'exiting-focus'; this.dragging = false
     gsap.killTweensOf([this.camera.position, this.target])
     const focusCamera = this.camera.position.clone()
@@ -113,11 +115,10 @@ export class ProductFocusController {
     } })
   }
 
-  private purchase(action: 'reserve' | 'acquire'): void {
-    if (this.state !== 'focus' || !this.selectedProduct) return
-    this.onPurchase(action, this.selectedProduct)
+  private purchase(action: CommerceAction): void {
+    if (this.state !== 'focus' || !this.selectedProduct || this.commercePending) return
+    this.ui.showPurchaseMessage(action)
   }
-  private onPurchase(_action: 'reserve' | 'acquire', _product: Product): void { this.ui.showPurchaseMessage() }
   private onKeyDown = (event: KeyboardEvent): void => { if (event.key === 'Escape') this.close(); else if (event.key === 'ArrowLeft') this.navigate(-1); else if (event.key === 'ArrowRight') this.navigate(1) }
   private onDragStart = (event: PointerEvent): void => { if (this.state !== 'focus' || !this.selected || !this.dragZone) return; this.dragging = true; this.lastPointerDown.set(event.clientX, event.clientY); this.dragZone.setPointerCapture(event.pointerId); this.dragZone.style.cursor = 'grabbing' }
   private onDragMove = (event: PointerEvent): void => {

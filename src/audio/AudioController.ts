@@ -42,9 +42,9 @@ export class AudioController {
   private toggle = (): void => {
     this.enabled = !this.enabled
     this.button.setAttribute('aria-pressed', String(this.enabled))
-    this.button.setAttribute('aria-label', this.enabled ? 'Disable ambient audio' : 'Enable ambient audio')
+    this.button.setAttribute('aria-label', this.enabled ? 'Desactivar sonido ambiental' : 'Activar sonido ambiental')
     const label = this.button.querySelector<HTMLElement>('[data-audio-label]')
-    if (label) label.textContent = this.enabled ? 'Sound on' : 'Sound off'
+    if (label) label.textContent = this.enabled ? 'Sonido on' : 'Sonido off'
     if (this.enabled) {
       this.tracks.forEach(({ audio }) => { void audio.play().catch(() => undefined) })
       this.fadeTo(this.masterVolume, 900)
@@ -72,4 +72,3 @@ export class AudioController {
 function THREEClamp(value: number): number {
   return Math.min(1, Math.max(0, value))
 }
-

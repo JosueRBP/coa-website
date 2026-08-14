@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { DustController } from './DustController'
 import { LizardController } from './LizardController'
 import { workshopMaterials } from '../scene/workshopMaterials'
+import { AnimationMixerRegistry } from '../assets/AnimationMixerRegistry'
 
 export class LivingWorkshop {
   readonly root = new THREE.Group()
@@ -11,6 +12,7 @@ export class LivingWorkshop {
   private readonly reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   private readonly baseDaylight: number
   private readonly daylight: THREE.DirectionalLight
+  private readonly mixers = new AnimationMixerRegistry()
 
   constructor(daylight: THREE.DirectionalLight) {
     this.daylight = daylight
@@ -37,8 +39,11 @@ export class LivingWorkshop {
   setViewport(width: number): void {
     this.dust.setViewport(width)
   }
+  bindInteraction(element: HTMLElement, camera: THREE.Camera, canInteract: () => boolean): void { this.lizard.bindInteraction(element, camera, canInteract) }
+  useImportedLizard(root: THREE.Object3D, clips: THREE.AnimationClip[]): void { this.lizard.useImportedModel(root, clips, this.mixers) }
 
   update(delta: number, elapsed: number): void {
+    this.mixers.update(delta)
     this.lizard.update(delta, elapsed)
     this.dust.update(delta, elapsed)
     if (this.reducedMotion) return
