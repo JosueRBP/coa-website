@@ -5,8 +5,15 @@ export function createEyewearDisplay(product: Product): THREE.Group {
   const display = new THREE.Group()
   display.name = `eyewear-${product.id}`
   display.userData.productId = product.id
-  const frameMaterial = new THREE.MeshStandardMaterial({ color: new THREE.Color().setHSL(0.07 + Number(product.id) * 0.012, 0.18, 0.22), metalness: 0.68, roughness: 0.28 })
-  const lensMaterial = new THREE.MeshPhysicalMaterial({ color: 0x8b9692, transparent: true, opacity: 0.32, roughness: 0.12, metalness: 0.05 })
+  const materialVariant = Number(product.id) % 3
+  const frameMaterial = new THREE.MeshPhysicalMaterial({
+    color: new THREE.Color().setHSL(0.055 + materialVariant * 0.035, 0.2, 0.2 + materialVariant * 0.035),
+    metalness: materialVariant === 1 ? 0.76 : 0.5,
+    roughness: materialVariant === 2 ? 0.34 : 0.24,
+    clearcoat: materialVariant === 0 ? 0.42 : 0.16,
+    clearcoatRoughness: 0.28,
+  })
+  const lensMaterial = new THREE.MeshPhysicalMaterial({ color: 0xa9c0bd, transparent: true, opacity: 0.24, roughness: 0.08, transmission: 0.2, thickness: 0.025, metalness: 0 })
   const lensGeometry = new THREE.BoxGeometry(0.72, 0.34, 0.06)
   const rimGeometry = new THREE.TorusGeometry(0.39, 0.035, 8, 24)
   ;[-0.46, 0.46].forEach((x) => {

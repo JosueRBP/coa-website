@@ -9,6 +9,7 @@ interface ResponsiveLayout {
   cameraPosition: Position
   cameraTarget: Position
   productPositions: readonly Position[]
+  shelfPositions: readonly Position[]
   productScale: number
   parallaxStrength: number
   shelfWidth: number
@@ -26,6 +27,12 @@ const layouts: Record<Breakpoint, ResponsiveLayout> = {
       [4.3, 2.55, -2.8], [4.3, 1.3, -2.8], [4.3, 0.05, -2.8],
       [4.3, -1.2, -2.8], [4.3, -2.45, -2.8],
     ],
+    shelfPositions: [
+      [-4.3, 1.78, -2.95], [-4.3, 0.23, -2.95], [-4.3, -1.32, -2.95],
+      [0, -1.98, -1.92],
+      [4.3, 2.28, -2.95], [4.3, 1.03, -2.95], [4.3, -0.22, -2.95],
+      [4.3, -1.47, -2.95], [4.3, -2.72, -2.95],
+    ],
     productScale: 0.5,
     parallaxStrength: 1,
     shelfWidth: 1.45,
@@ -36,9 +43,14 @@ const layouts: Record<Breakpoint, ResponsiveLayout> = {
     cameraPosition: [0, 0.1, 14.5],
     cameraTarget: [0, 0, -2.5],
     productPositions: [
-      [-2.5, 2.1, -2.2], [0, 2.1, -2.2], [2.5, 2.1, -2.2],
-      [-2.5, 0, -2.2], [0, 0, -2.2], [2.5, 0, -2.2],
-      [-2.5, -2.1, -2.2], [0, -2.1, -2.2], [2.5, -2.1, -2.2],
+      [-4.05, 2.05, -2.8], [-4.05, 0.5, -2.8], [-4.05, -1.05, -2.8],
+      [0, -1.62, -1.92], [-1.3, -1.94, -1.82], [1.3, -1.94, -1.82],
+      [4.05, 2.05, -2.8], [4.05, 0.5, -2.8], [4.05, -1.05, -2.8],
+    ],
+    shelfPositions: [
+      [-4.05, 1.81, -2.95], [-4.05, 0.26, -2.95], [-4.05, -1.29, -2.95],
+      [0, -1.86, -1.9], [-1.3, -2.18, -1.8], [1.3, -2.18, -1.8],
+      [4.05, 1.81, -2.95], [4.05, 0.26, -2.95], [4.05, -1.29, -2.95],
     ],
     productScale: 0.44,
     parallaxStrength: 0.72,
@@ -47,20 +59,23 @@ const layouts: Record<Breakpoint, ResponsiveLayout> = {
     workbenchY: -2.9,
   },
   mobile: {
-    cameraPosition: [0, 0, 17.8],
-    cameraTarget: [0, 0, -2.5],
+    cameraPosition: [0, 0.15, 15.8],
+    cameraTarget: [0, -0.05, -3.1],
     productPositions: [
-      [-1.15, 3.3, -2.2], [1.15, 3.3, -2.2],
-      [-1.15, 1.65, -2.2], [1.15, 1.65, -2.2],
-      [-1.15, 0, -2.2], [1.15, 0, -2.2],
-      [-1.15, -1.65, -2.2], [1.15, -1.65, -2.2],
-      [0, -3.3, -2.2],
+      [-4.2, 2.05, -2.8], [-4.2, 0.5, -2.8], [-4.2, -1.05, -2.8],
+      [0, -1.62, -1.92], [-1.25, -1.94, -1.82], [1.25, -1.94, -1.82],
+      [4.2, 2.05, -2.8], [4.2, 0.5, -2.8], [4.2, -1.05, -2.8],
+    ],
+    shelfPositions: [
+      [-4.2, 1.84, -2.95], [-4.2, 0.29, -2.95], [-4.2, -1.26, -2.95],
+      [0, -1.83, -1.9], [-1.25, -2.18, -1.8], [1.25, -2.18, -1.8],
+      [4.2, 1.84, -2.95], [4.2, 0.29, -2.95], [4.2, -1.26, -2.95],
     ],
     productScale: 0.38,
     parallaxStrength: 0.5,
     shelfWidth: 1.12,
-    floorY: -4.35,
-    workbenchY: -4.05,
+    floorY: -3.25,
+    workbenchY: -2.95,
   },
 }
 
@@ -93,10 +108,13 @@ export class ResponsiveSceneController {
     this.parallax.setBasePose(this.cameraPosition, this.cameraTarget, layout.parallaxStrength)
     this.workshop.floor.position.y = layout.floorY
     this.workshop.workbench.position.y = layout.workbenchY
+    this.workshop.foreground.visible = breakpoint === 'desktop'
 
     this.workshop.eyewear.forEach((product, index) => {
       const position = layout.productPositions[index]
       if (!position) throw new Error(`Missing responsive position for product ${index + 1}`)
+      const shelfPosition = layout.shelfPositions[index]
+      if (!shelfPosition) throw new Error(`Missing responsive shelf position for product ${index + 1}`)
 
       product.position.set(...position)
       product.rotation.set(-0.1, breakpoint === 'desktop' ? ((index % 3) - 1) * -0.08 : 0, 0)
@@ -105,7 +123,7 @@ export class ResponsiveSceneController {
 
       const shelf = this.workshop.shelves[index]
       if (shelf) {
-        shelf.position.set(position[0], position[1] - 0.48 * (scale / 0.9), -2.95)
+        shelf.position.set(...shelfPosition)
         shelf.scale.set(layout.shelfWidth / 2.3, 1, breakpoint === 'mobile' ? 0.95 / 1.15 : breakpoint === 'tablet' ? 1.05 / 1.15 : 1)
       }
     })
