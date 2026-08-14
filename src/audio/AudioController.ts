@@ -12,7 +12,7 @@ interface LoadedTrack {
 
 export class AudioController {
   private enabled = false
-  private masterVolume = 0.55
+  private masterVolume = 1
   private readonly button: HTMLButtonElement
   private readonly tracks: LoadedTrack[] = []
 
@@ -20,11 +20,13 @@ export class AudioController {
     this.button = button
     tracks.forEach((track) => this.addTrack(track))
     button.addEventListener('click', this.toggle)
+    window.addEventListener('pointerdown', this.startOnFirstInteraction, { capture: true, once: true })
+    window.addEventListener('keydown', this.startOnFirstInteraction, { capture: true, once: true })
   }
 
   addTrack(track: AmbientTrack): void {
     const audio = new Audio()
-    audio.preload = 'none'
+    audio.preload = 'metadata'
     audio.loop = track.loop ?? true
     audio.volume = 0
     audio.addEventListener('error', () => { audio.pause() }, { once: true })
@@ -39,18 +41,36 @@ export class AudioController {
 
   mute(): void { if (this.enabled) this.toggle() }
 
+  private startOnFirstInteraction = (event: Event): void => {
+    if ((event.target as Element | null)?.closest?.('[data-audio-toggle]')) return
+    this.enable()
+  }
+
   private toggle = (): void => {
-    this.enabled = !this.enabled
+    if (this.enabled) this.disable()
+    else this.enable()
+  }
+
+  private enable(): void {
+    if (this.enabled) return
+    this.enabled = true
+    this.syncButton()
+    this.tracks.forEach(({ audio }) => { void audio.play().catch(() => this.disable()) })
+    this.fadeTo(this.masterVolume, 1100)
+  }
+
+  private disable(): void {
+    if (!this.enabled) return
+    this.enabled = false
+    this.syncButton()
+    this.fadeTo(0, 650, true)
+  }
+
+  private syncButton(): void {
     this.button.setAttribute('aria-pressed', String(this.enabled))
     this.button.setAttribute('aria-label', this.enabled ? 'Desactivar sonido ambiental' : 'Activar sonido ambiental')
     const label = this.button.querySelector<HTMLElement>('[data-audio-label]')
     if (label) label.textContent = this.enabled ? 'Sonido on' : 'Sonido off'
-    if (this.enabled) {
-      this.tracks.forEach(({ audio }) => { void audio.play().catch(() => undefined) })
-      this.fadeTo(this.masterVolume, 900)
-    } else {
-      this.fadeTo(0, 650, true)
-    }
   }
 
   private fadeTo(masterTarget: number, duration: number, pauseAfter = false): void {

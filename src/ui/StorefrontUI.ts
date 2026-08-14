@@ -18,7 +18,7 @@ export class StorefrontUI {
   private readonly infoOverlay = document.querySelector<HTMLElement>('[data-info-overlay]')
   constructor() {
     const audioButton = document.querySelector<HTMLButtonElement>('[data-audio-toggle]')
-    if (audioButton) { const audio = new AudioController(audioButton); document.querySelector<HTMLInputElement>('[data-audio-volume]')?.addEventListener('input', (event) => audio.setVolume(Number((event.target as HTMLInputElement).value) / 100)) }
+    if (audioButton) new AudioController(audioButton, [{ id: 'quizas-bolero', src: `${import.meta.env.BASE_URL}audio/quizas-quizas-quizas-los-panchos.mp3`, volume: 0.34, loop: true }])
     document.querySelectorAll<HTMLElement>('[data-info-open]').forEach((button) => button.addEventListener('click', () => this.openInformation(button.dataset.infoOpen ?? 'concept')))
     document.querySelectorAll<HTMLElement>('[data-info-close]').forEach((button) => button.addEventListener('click', this.closeInformation))
     document.querySelector('[data-collection-view]')?.addEventListener('click', this.closeInformation)
