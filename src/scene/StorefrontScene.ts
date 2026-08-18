@@ -11,6 +11,7 @@ import { AssetPipeline } from '../assets/AssetPipeline'
 import { assetManifest } from '../assets/assetManifest'
 import { products } from '../products/catalog'
 import type { WorkshopContent } from './createWorkshop'
+import { tagProductHierarchy } from '../assets/modelUtils'
 
 export class StorefrontScene {
   private readonly scene = new THREE.Scene(); private readonly camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100)
@@ -75,7 +76,7 @@ export class StorefrontScene {
     const width = this.container.clientWidth; const height = this.container.clientHeight
     if (width <= 0 || height <= 0 || !Number.isFinite(width / height)) return
     this.camera.aspect = width / height; this.camera.updateProjectionMatrix()
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75)); this.renderer.setSize(width, height, false)
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, width < 680 ? 1.25 : 1.75)); this.renderer.setSize(width, height, false)
     if (this.focusController.isFocused) this.focusController.reapplyAfterResize()
     else this.applyWorkshopLayout()
     this.mobilePan.setViewport(width)
@@ -97,10 +98,34 @@ export class StorefrontScene {
     void this.prepareAssets()
   }
   private async prepareAssets(): Promise<void> {
+    const preview = await this.assetPipeline.registry.load(assetManifest.clientPreview.scene)
+    if (preview) this.integrateClientPreview(preview.root)
+    else this.ui.showPreviewFallback()
     await this.assetPipeline.loadEssential(this.workshop, products)
     this.ui.updateLoadingProgress({ loaded: 1, total: 1, percent: 100, currentUrl: '' })
     this.ui.hideLoader()
     void this.loadOptionalAssets()
+  }
+  private integrateClientPreview(imported: THREE.Group): void {
+    this.workshop.root.children.forEach((child) => { child.visible = false })
+    imported.name = 'PN_Client_Preview_V2'
+    imported.traverse((child) => { if (child instanceof THREE.Mesh) { child.castShadow = true; child.receiveShadow = true } })
+    this.workshop.root.add(imported)
+    const importedProducts = products.map((product) => imported.getObjectByName(`PN_Eyewear_${product.id}`)).filter((node): node is THREE.Group => node instanceof THREE.Group)
+    if (importedProducts.length !== products.length) {
+      imported.visible = false
+      this.workshop.root.children.forEach((child) => { if (child !== imported) child.visible = true })
+      console.warn('[client-preview-v2] Missing eyewear roots; procedural fallback remains active.')
+      return
+    }
+    this.workshop.eyewear.splice(0, this.workshop.eyewear.length, ...importedProducts)
+    importedProducts.forEach((group, index) => {
+      tagProductHierarchy(group, products[index].id)
+      group.userData.previewPosition = group.position.toArray(); group.userData.previewQuaternion = group.quaternion.toArray(); group.userData.previewScale = group.scale.toArray(); group.userData.baseScale = group.scale.x
+    })
+    this.workshop.root.userData.clientPreviewImported = true
+    this.scene.background = new THREE.Color(0x171713); this.scene.fog = null
+    this.applyResize()
   }
   private async loadOptionalAssets(): Promise<void> {
     await this.assetPipeline.loadOptional(this.workshop)

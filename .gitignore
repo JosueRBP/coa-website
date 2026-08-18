@@ -25,3 +25,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Blender working outputs
+blender/renders/
+blender/scripts/__pycache__/
+blender/*.blend1
+blender/**/*.blend1

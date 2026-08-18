@@ -42,6 +42,7 @@ button { color: inherit; }
 .info-overlay__backdrop { position: absolute; inset: 0; border: 0; background: rgba(9,11,9,.68); backdrop-filter: blur(8px); }
 .info-overlay__panel { position: relative; width: min(34rem, calc(100vw - 2rem)); padding: clamp(2rem, 6vw, 4rem); background: #1a1d19; border: 1px solid rgba(242,237,226,.16); box-shadow: 0 2rem 5rem rgba(0,0,0,.35); }
 .info-overlay__eyebrow { color: #c4a96f; font-size: .58rem; letter-spacing: .18em; text-transform: uppercase; }.info-overlay h2 { margin: .8rem 0 1rem; font: normal clamp(2.3rem, 6vw, 4rem)/1 Georgia, serif; }.info-overlay p { color: rgba(242,237,226,.68); line-height: 1.7; }.info-overlay__close { margin-top: 1.5rem; padding: .7rem 1.1rem; border: 1px solid rgba(242,237,226,.25); background: transparent; font-size: .6rem; letter-spacing: .16em; text-transform: uppercase; cursor: pointer; }
+.info-overlay .client-preview-note { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(242,237,226,.14); color: rgba(216,195,143,.72); font: .58rem/1.55 ui-sans-serif, sans-serif; letter-spacing: .1em; text-transform: uppercase; }
 .focus-experience { position: fixed; z-index: 7; inset: 0; color: #f1ecdf; pointer-events: none; opacity: 1; transition: opacity .5s ease; }
 .focus-experience[aria-hidden='true'] { opacity: 0; visibility: hidden; }
 .focus-experience__shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(14,16,14,.04) 0%, rgba(14,16,14,.08) 48%, rgba(12,14,12,.72) 67%, rgba(12,14,12,.96) 100%); }

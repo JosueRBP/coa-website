@@ -1,0 +1,21 @@
+{
+  "reference_policy": "four isolated approved crops only; technical sheet not loaded",
+  "removed_previous_master_objects": 1,
+  "physical": {
+    "front_width_mm": 157,
+    "temple_length_mm": 146,
+    "front_depth_mm": 7
+  },
+  "editorial_scale": 6.011,
+  "hero_projected_width_px": 185.1,
+  "front_thresholded_area_iou_diagnostic": 0.4228,
+  "geometry": {
+    "vertices": 6800,
+    "polygons": 5172,
+    "triangles": 7420
+  },
+  "visible_instances": 1,
+  "lateral_roots_01_08_empty": true,
+  "remaining_front_discrepancies": "minor brow/endpiece contour variation and slightly shallower lower-rim curvature; bridge is continuous and spike-free",
+  "camera_unchanged": true
+}

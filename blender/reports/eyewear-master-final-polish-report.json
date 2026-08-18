@@ -1,0 +1,29 @@
+{
+  "metric": "symmetric three-contour match within 5 px",
+  "contours": [
+    "outer",
+    "left opening",
+    "right opening"
+  ],
+  "excluded": [
+    "rear temples",
+    "lenses",
+    "reflections",
+    "rivets",
+    "materials",
+    "background"
+  ],
+  "contour_match_percent": 46.73,
+  "physical_width_mm": 157,
+  "temple_length_mm": 146,
+  "editorial_scale": 6.011,
+  "hero_width_px": 185.1,
+  "geometry": {
+    "vertices": 7292,
+    "polygons": 5556,
+    "triangles": 8224
+  },
+  "single_visible_master": true,
+  "lateral_roots_empty": true,
+  "camera_unchanged": true
+}

@@ -97,6 +97,18 @@ export class ResponsiveSceneController {
   }
 
   apply(width: number): void {
+    if (this.workshop.root.userData.clientPreviewImported) {
+      const mobile = width < 680
+      this.cameraPosition.set(0, mobile ? 2.65 : 2.52, mobile ? 15.2 : width < 1100 ? 12.8 : 11.15)
+      this.cameraTarget.set(0, mobile ? 2.0 : 1.95, 0)
+      this.camera.position.copy(this.cameraPosition); this.camera.lookAt(this.cameraTarget)
+      this.parallax.setBasePose(this.cameraPosition, this.cameraTarget, mobile ? .34 : .55)
+      this.workshop.eyewear.forEach((product) => {
+        const position = product.userData.previewPosition as number[] | undefined; const quaternion = product.userData.previewQuaternion as number[] | undefined; const scale = product.userData.previewScale as number[] | undefined
+        if (position) product.position.fromArray(position); if (quaternion) product.quaternion.fromArray(quaternion); if (scale) product.scale.fromArray(scale); product.userData.baseScale = product.scale.x
+      })
+      return
+    }
     const breakpoint: Breakpoint = width >= 1100 ? 'desktop' : width >= 680 ? 'tablet' : 'mobile'
     const layout = layouts[breakpoint]
     const scale = layout.productScale

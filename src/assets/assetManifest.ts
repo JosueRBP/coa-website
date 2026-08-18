@@ -3,6 +3,9 @@ import type { AssetDefinition } from './types'
 const identity = { position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] } as const
 
 export const assetManifest = {
+  clientPreview: {
+    scene: { id: 'client-preview.v2', kind: 'workshop', path: `${import.meta.env.BASE_URL}models/puerto-nuevo-client-preview-v2.glb`, priority: 'essential', enabled: true, transform: identity, expectedRootName: 'Scene' },
+  },
   workshop: {
     architecture: { id: 'workshop.architecture', kind: 'workshop', path: '/models/workshop/workshop-shell.glb', priority: 'essential', enabled: false, transform: identity, expectedRootName: 'PN_Workshop_Shell' },
     window: { id: 'workshop.window', kind: 'workshop', path: '/models/workshop/arched-window.glb', priority: 'essential', enabled: false, transform: identity, expectedRootName: 'PN_Arched_Window' },
