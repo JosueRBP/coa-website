@@ -99,6 +99,8 @@ export class ResponsiveSceneController {
   apply(width: number): void {
     if (this.workshop.root.userData.clientPreviewImported) {
       const mobile = width < 680
+      this.camera.fov = mobile ? 34 : 26
+      this.camera.updateProjectionMatrix()
       this.cameraPosition.set(0, mobile ? 2.65 : 2.52, mobile ? 15.2 : width < 1100 ? 12.8 : 11.15)
       this.cameraTarget.set(0, mobile ? 2.0 : 1.95, 0)
       this.camera.position.copy(this.cameraPosition); this.camera.lookAt(this.cameraTarget)

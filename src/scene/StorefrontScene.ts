@@ -14,7 +14,7 @@ import type { WorkshopContent } from './createWorkshop'
 import { tagProductHierarchy } from '../assets/modelUtils'
 
 export class StorefrontScene {
-  private readonly scene = new THREE.Scene(); private readonly camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100)
+  private readonly scene = new THREE.Scene(); private readonly camera = new THREE.PerspectiveCamera(26, 1, 0.1, 100)
   private readonly renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' }); private readonly parallax: ParallaxController; private readonly ui = new StorefrontUI()
   private readonly responsiveLayout: ResponsiveSceneController
   private readonly productInteraction: ProductInteraction
@@ -43,11 +43,11 @@ export class StorefrontScene {
   }
   private addLighting(): THREE.DirectionalLight {
     this.scene.add(new THREE.HemisphereLight(0xe9f0ec, 0x5b554e, 1.15))
-    const windowFill = new THREE.RectAreaLight(0xfff9ec, 20, 4.6, 5.6)
+    const windowFill = new THREE.RectAreaLight(0xfff1d6, 12, 4.6, 5.6)
     windowFill.position.set(0, 1.25, -3.95)
     windowFill.lookAt(0, -0.7, 2.5)
     this.scene.add(windowFill)
-    const daylight = new THREE.DirectionalLight(0xfff8e9, 3.35)
+    const daylight = new THREE.DirectionalLight(0xffe4bd, 3)
     daylight.position.set(-0.8, 5.8, -3.35)
     daylight.target.position.set(0.4, -2.2, 2.6)
     daylight.castShadow = true
@@ -58,10 +58,10 @@ export class StorefrontScene {
     daylight.shadow.camera.near = 0.5; daylight.shadow.camera.far = 20
     daylight.shadow.camera.left = -8; daylight.shadow.camera.right = 8; daylight.shadow.camera.top = 7; daylight.shadow.camera.bottom = -5
     this.scene.add(daylight, daylight.target)
-    const roomFill = new THREE.PointLight(0xe7eee7, 2.5, 16, 2)
+    const roomFill = new THREE.PointLight(0xe7eee7, 1.5, 16, 2)
     roomFill.position.set(-4.8, 3.8, 3.2)
     this.scene.add(roomFill)
-    const benchBounce = new THREE.RectAreaLight(0xd8b895, 3.2, 7.5, 1.5)
+    const benchBounce = new THREE.RectAreaLight(0xd8a978, 2.5, 7.5, 1.5)
     benchBounce.position.set(0, -1.45, -1.7); benchBounce.lookAt(0, .2, -3.8); this.scene.add(benchBounce)
     return daylight
   }
@@ -109,9 +109,19 @@ export class StorefrontScene {
   private integrateClientPreview(imported: THREE.Group): void {
     this.workshop.root.children.forEach((child) => { child.visible = false })
     imported.name = 'PN_Client_Preview_V2'
-    imported.traverse((child) => { if (child instanceof THREE.Mesh) { child.castShadow = true; child.receiveShadow = true } })
+    imported.traverse((child) => {
+      if (!(child instanceof THREE.Mesh)) return
+      child.castShadow = true
+      child.receiveShadow = true
+      const materials = Array.isArray(child.material) ? child.material : [child.material]
+      materials.forEach((material) => this.applyPreviewMaterial(material))
+    })
     this.workshop.root.add(imported)
-    const importedProducts = products.map((product) => imported.getObjectByName(`PN_Eyewear_${product.id}`)).filter((node): node is THREE.Group => node instanceof THREE.Group)
+    // Blender empties are loaded as Object3D nodes, not necessarily THREE.Group.
+    // Their transform/child contract is all the interaction system requires.
+    const importedProducts = products
+      .map((product) => imported.getObjectByName(`PN_Eyewear_${product.id}`))
+      .filter((node): node is THREE.Group => node !== undefined)
     if (importedProducts.length !== products.length) {
       imported.visible = false
       this.workshop.root.children.forEach((child) => { if (child !== imported) child.visible = true })
@@ -124,8 +134,35 @@ export class StorefrontScene {
       group.userData.previewPosition = group.position.toArray(); group.userData.previewQuaternion = group.quaternion.toArray(); group.userData.previewScale = group.scale.toArray(); group.userData.baseScale = group.scale.x
     })
     this.workshop.root.userData.clientPreviewImported = true
-    this.scene.background = new THREE.Color(0x171713); this.scene.fog = null
+    this.renderer.toneMappingExposure = 1.1
+    this.scene.background = new THREE.Color(0x17130f); this.scene.fog = null
     this.applyResize()
+  }
+
+  private applyPreviewMaterial(material: THREE.Material): void {
+    if (!(material instanceof THREE.MeshStandardMaterial)) return
+    const name = material.name.toLowerCase()
+    const set = (color: number, roughness: number, metalness = 0): void => {
+      material.color.setHex(color)
+      material.roughness = roughness
+      material.metalness = metalness
+      material.needsUpdate = true
+    }
+    if (name.includes('plaster')) set(0x827665, 0.92)
+    else if (name.includes('window_reveal')) set(0xb5aa98, 0.86)
+    else if (name.includes('walnut') || name.includes('darkwood')) set(name.includes('dark') ? 0x35170d : 0x5a2813, 0.68)
+    else if (name.includes('aged_brass') || name.includes('agedbrass') || name.includes('hingemetal')) set(0x8b6127, 0.42, 0.72)
+    else if (name.includes('blackened') || name.includes('fixture_black')) set(0x151511, 0.58, 0.55)
+    else if (name.includes('machinegreen')) set(0x173b2c, 0.56, 0.18)
+    else if (name.includes('machinesteel')) set(0x434842, 0.48, 0.72)
+    else if (name.includes('rubber')) set(0x11120f, 0.9)
+    else if (name.includes('acetate') || name.includes('tortoise')) set(name.includes('amber') ? 0x6b3214 : 0x17100d, 0.3)
+    else if (name.includes('grille')) set(0xc9c1ae, 0.72, 0.18)
+    else if (name.includes('exterior_turquoise')) set(0x518f89, 0.88)
+    else if (name.includes('exterior_coral')) set(0xa75e4f, 0.88)
+    else if (name.includes('exterior_cream') || name.includes('exterior_trim')) set(0xb5a78d, 0.9)
+    else if (name.includes('exterior_window_dark')) set(0x26322f, 0.84)
+    else if (name.includes('foliage')) set(name.includes('light') ? 0x52774a : 0x2d593b, 0.9)
   }
   private async loadOptionalAssets(): Promise<void> {
     await this.assetPipeline.loadOptional(this.workshop)
