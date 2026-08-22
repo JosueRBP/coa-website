@@ -1,0 +1,21 @@
+{
+  "old_visible_objects_removed": 87,
+  "old_eyewear_triangles_removed": 55196,
+  "new_visible_objects": 135,
+  "new_eyewear_triangles": 43344,
+  "scene_vertices": 67360,
+  "scene_polygons": 63798,
+  "scene_triangles": 130544,
+  "master_bounds_mm": {
+    "evaluated_width": 154.72,
+    "evaluated_height": 50.73,
+    "bridge_design": 20,
+    "temple_length_design": 146,
+    "front_thickness": 7,
+    "temple_thickness": 5
+  },
+  "shelf_depth_m": 0.29,
+  "spotlights": 9,
+  "shadow_casting_spotlights": 5,
+  "shadow_strategy": "Hero plus alternating lateral products cast shadows; four secondary fills use shadowless spots to protect the Eevee atlas."
+}

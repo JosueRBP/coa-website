@@ -1,0 +1,24 @@
+{
+  "previous_eyewear_objects_removed": 1,
+  "visible_new_eyewear_instances": 1,
+  "physical_bounds_mm": {
+    "front_width": 157.0,
+    "open_total_width": 191.74,
+    "open_depth": 149.58,
+    "height": 50.57
+  },
+  "design_dimensions_mm": {
+    "front_width": 155,
+    "height": 50,
+    "bridge": 20,
+    "temple": 146,
+    "front_thickness": 7,
+    "temple_thickness": 5
+  },
+  "editorial_scale": 2.25,
+  "physical_objects": 15,
+  "vertices": 6660,
+  "polygons": 6404,
+  "triangles": 13268,
+  "lateral_roots_visible_geometry": 0
+}
